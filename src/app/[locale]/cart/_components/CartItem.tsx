@@ -14,7 +14,7 @@ function CartItems() {
   const dispatch = useAppDispatch();
   const subTotal = getSubTotal(cart);
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(cart));
+    localStorage.setItem("cartItems", JSON.stringify(cart));
   }, [cart]);
   return (
     <div>

@@ -1,4 +1,4 @@
-import { Languages } from '@/constants/enums';
+import { Languages } from "@/constants/enums";
 
 export type LanguageType = Languages.ARABIC | Languages.ENGLISH;
 
@@ -12,4 +12,4 @@ export const i18n: i18nType = {
   locales: [Languages.ARABIC, Languages.ENGLISH],
 };
 
-export type Locale = (typeof i18n)['locales'][number];
+export type Locale = (typeof i18n)["locales"][number];

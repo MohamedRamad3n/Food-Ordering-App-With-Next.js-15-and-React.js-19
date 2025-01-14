@@ -1,19 +1,35 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Pages, Routes } from "@/constants/enums";
+import {  Routes } from "@/constants/enums";
 import Link from "../link";
-import { Button, buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
 import { useState } from "react";
 import { Menu, XIcon } from "lucide-react";
+import { useParams, usePathname } from "next/navigation";
 
-const NavBar = () => {
+const NavBar = ({ translations }: { translations: { [key: string]: any } }) => {
+  const { locale } = useParams();
+  const pathname = usePathname();
+
   const [openMenu, setOpenMenu] = useState(false);
   const links = [
-    { title: "Menu", href: Routes.MENU },
-    { title: "About", href: Routes.ABOUT },
-    { title: "Contact", href: Routes.CONTACT },
-    { title: "Login", href: `${Routes.AUTH}/${Pages.LOGIN}` },
-  ].map((link) => ({ ...link, id: crypto.randomUUID() }));
+    {
+      id: crypto.randomUUID(),
+      title: translations.navbar.menu,
+      href: Routes.MENU,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: translations.navbar.about,
+      href: Routes.ABOUT,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: translations.navbar.contact,
+      href: Routes.CONTACT,
+    },
+  ];
 
   return (
     <nav className="flex-1 justify-end flex">
@@ -44,13 +60,14 @@ const NavBar = () => {
 
         {links.map((link) => (
           <li key={link.id}>
-            <Link
-              href={`/${link.href}`}
-              className={`${
-                link.href === `${Routes.AUTH}/${Pages.LOGIN}`
-                  ? `${buttonVariants({ size: "lg" })} !px-8 !rounded-full`
-                  : "hover:text-primary duration-200 transition-colors"
-              } font-semibold`} // Applied as part of className
+           <Link
+              onClick={() => setOpenMenu(false)}
+              href={`/${locale}/${link.href}`}
+              className={`hover:text-primary duration-200 transition-colors font-semibold ${
+                pathname.startsWith(`/${locale}/${link.href}`)
+                  ? "text-primary"
+                  : "text-accent"
+              }`}
             >
               {link.title}
             </Link>

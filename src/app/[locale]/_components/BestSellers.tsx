@@ -1,18 +1,27 @@
 import MainHeading from "@/components/mainheading";
 import Menu from "@/components/menu";
-import { getBestSellers} from "@/server/db/products";
+import { getCurrentLocale } from "@/lib/getCurrentLocale";
+import getTrans from "@/lib/transilation";
+import { getBestSellers } from "@/server/db/products";
 
 const BestSellers = async () => {
   const bestSellers = await getBestSellers(3);
-  console.log(bestSellers);
-  
+  const locale = await getCurrentLocale();
+  const { home } = await getTrans(locale);
+  const { bestSeller } = home;
+
   return (
-    <div className="container">
-      <div className="text-center mb-4">
-        <MainHeading title={"Check Out"} subTitle="Our Best Sellers" />
+    <section>
+      <div className="container">
+        <div className="text-center mb-4">
+          <MainHeading
+            subTitle={bestSeller.checkOut}
+            title={bestSeller.OurBestSellers}
+          />
+        </div>
+        <Menu items={bestSellers} />
       </div>
-      <Menu items={bestSellers} />
-    </div>
+    </section>
   );
 };
 

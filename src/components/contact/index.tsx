@@ -1,21 +1,26 @@
 import { Routes } from "@/constants/enums";
 import MainHeading from "../mainheading";
+import { getCurrentLocale } from "@/lib/getCurrentLocale";
+import getTrans from "@/lib/transilation";
 
 const Contact = async () => {
+  const locale = await getCurrentLocale();
+  const { home } = await getTrans(locale);
+  const { contact } = home;
   return (
     <section className='section-gap' id={Routes.CONTACT}>
-      <div className='container text-center'>
-        <MainHeading
-          subTitle="Contact Us"
-          title="Don't HESITATE"
-        />
-        <div className='mt-8'>
-          <a className='text-4xl underline text-accent' href='tel:+2012121212'>
-            +201025728942
-          </a>
-        </div>
+    <div className='container text-center'>
+      <MainHeading
+        subTitle={contact["Don'tHesitate"]}
+        title={contact.contactUs}
+      />
+      <div className='mt-8'>
+        <a className='text-4xl underline text-accent' href='tel:+2012121212'>
+          +2012121212
+        </a>
       </div>
-    </section>
+    </div>
+  </section>
   );
 };
 
