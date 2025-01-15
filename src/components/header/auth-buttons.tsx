@@ -1,30 +1,65 @@
 "use client";
+
+import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
+import { Translations } from "@/types/translations";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { Pages, Routes } from "@/constants/enums";
+import { useClientSession } from "@/hooks/useClientSession";
+import { Session } from "next-auth";
 
-function AuthButtons() {
+function AuthButtons({
+  initialSession,
+  translations,
+}: {
+  initialSession: Session | null;
+  translations: Translations;
+}) {
+  const session = useClientSession(initialSession);
   const router = useRouter();
   const pathname = usePathname();
-  const { locale } = useParams();
+  const { locale } = useParams(); 
   return (
-    <div>
-      <div className="flex items-center gap-6">
+    <div className="flex items-center gap-10">
+      {session.data?.user && (
         <Button
-          className={`${
-            pathname.startsWith(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`)
-              ? "text-primary"
-              : "text-accent"
-          } hover:text-primary duration-200 transition-colors font-semibold hover:no-underline !px-0`}
+          className="!px-8 !rounded-full"
           size="lg"
-          variant="link"
-          onClick={() =>
-            router.push(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`)
-          }
+          onClick={() => signOut()}
         >
-          Login
+          {translations.navbar.signOut}
         </Button>
-      </div>
+      )}
+      {/* {session.status === "loading" && <Loader />} */}
+      {!session.data?.user && (
+        <div className="flex items-center gap-6">
+          {
+            <Button
+              className={`${
+                pathname.startsWith(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`)
+                  ? "text-primary"
+                  : "text-accent"
+              } hover:text-primary duration-200 transition-colors font-semibold hover:no-underline !px-0`}
+              size="lg"
+              variant="link"
+              onClick={() =>
+                router.push(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`)
+              }
+            >
+              {translations.navbar.login}
+            </Button>
+          }
+          <Button
+            className="!px-8 !rounded-full"
+            size="lg"
+            onClick={() =>
+              router.push(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`)
+            }
+          >
+            {translations.navbar.register}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

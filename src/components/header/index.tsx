@@ -5,10 +5,13 @@ import { getCurrentLocale } from "@/lib/getCurrentLocale";
 import getTrans from "@/lib/transilation";
 import LanguageSwitcher from "./language-switcher";
 import AuthButtons from "./auth-buttons";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth";
 
 const Header = async () => {
   const locale = await getCurrentLocale();
   const translations = await getTrans(locale);
+    const initialSession = await getServerSession(authOptions);
   return (
     <header className="py-4 md:py-6">
       <div className="container flex items-center justify-between gap-6 lg:gap-10">
@@ -18,10 +21,10 @@ const Header = async () => {
         >
           🍕 {translations.logo}
         </Link>
-        <NavBar translations={translations}  />
+        <NavBar initialSession={initialSession}  translations={translations}  />
         <div className="flex items-center gap-6 flex-1 justify-end">
           <div className="hidden lg:flex lg:items-center lg:gap-6 ">
-            <AuthButtons />
+            <AuthButtons initialSession={initialSession} translations={translations} />
             <LanguageSwitcher />
           </div>
 

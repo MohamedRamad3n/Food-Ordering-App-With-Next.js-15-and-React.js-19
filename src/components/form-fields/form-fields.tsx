@@ -4,9 +4,10 @@ import TextField from "./text-field";
 import PasswordField from "./password-field";
 import { IFormField } from "@/types/app";
 import Checkbox from "./checkBox";
+import { ValidationError } from "next/dist/compiled/amphtml-validator";
 
 interface Props extends IFormField {
-  error: {};
+  error: ValidationError;
 }
 
 const FormFields = (props: Props) => {

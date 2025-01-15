@@ -5,7 +5,7 @@ import { getCurrentLocale } from "@/lib/getCurrentLocale";
 import getTrans from "@/lib/transilation";
 import Form from "./_components/Form";
 
-async function SigninPage() {
+async function SignupPage() {
   const locale = await getCurrentLocale();
   const translations = await getTrans(locale);
   return (
@@ -14,11 +14,11 @@ async function SigninPage() {
         <div className="container element-center">
           <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold text-center text-black mb-4">
-              {translations.auth.login.title} 
+              {translations.auth.register.title}
             </h2>
             <Form translations={translations} />
             <p className="mt-2 flex items-center justify-center text-accent text-sm">
-              <span>{translations.auth.login.authPrompt.message}</span>
+              <span>{translations.auth.register.authPrompt.message}</span>
               <Link
                 href={`/${locale}/${Routes.AUTH}/${Pages.Register}`}
                 className={`${buttonVariants({
@@ -26,7 +26,7 @@ async function SigninPage() {
                   size: "sm",
                 })} !text-black`}
               >
-                {translations.auth.login.authPrompt.signUpLinkText}
+                {translations.auth.register.authPrompt.loginLinkText}
               </Link>
             </p>
           </div>
@@ -36,4 +36,4 @@ async function SigninPage() {
   );
 }
 
-export default SigninPage;
+export default SignupPage;
