@@ -22,6 +22,13 @@ export enum Routes {
 export enum Pages {
   LOGIN = "signin",
   Register = "signup",
+  FORGOT_PASSWORD = "forgot-password",
+  CATEGORIES = "categories",
+  MENU_ITEMS = "menu-items",
+  USERS = "users",
+  ORDERS = "orders",
+  NEW = "new",
+  EDIT = "edit",
 }
 
 export enum InputTypes {
