@@ -77,7 +77,7 @@ model Product {
   name        String
   description String
   image       String
-  order       Int
+  order       Int            @default(autoincrement())
   basePrice   Float
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt

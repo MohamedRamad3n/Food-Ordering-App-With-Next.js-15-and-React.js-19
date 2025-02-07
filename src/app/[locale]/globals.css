@@ -79,3 +79,16 @@ body {
     @apply flex items-center justify-center
   }
 }
+
+
+/* For Shadcn Dialog */
+
+html[lang="ar"] div[role="dialog"] button {
+  left: 24px !important;
+  right: auto !important;
+}
+
+html[lang="en"] div[role="dialog"] button {
+  left: auto !important;
+  right: 24px !important;
+}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { InputTypes } from "@/constants/enums";
 import TextField from "./text-field";
 import PasswordField from "./password-field";

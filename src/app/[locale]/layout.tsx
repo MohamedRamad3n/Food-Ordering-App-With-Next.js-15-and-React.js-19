@@ -34,6 +34,7 @@ export default async function RootLayout({
   const locale = (await params).locale;
   return (
     <html
+      suppressHydrationWarning
       lang={locale}
       dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
     >
