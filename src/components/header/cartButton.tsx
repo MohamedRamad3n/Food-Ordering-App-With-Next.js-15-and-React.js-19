@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Link from '../link';
 import { Routes } from '@/constants/enums';
 import { ShoppingCartIcon } from 'lucide-react';
-import { useAppSelector, useAppDispatch } from '@/redux/hooks';
+import { useAppSelector } from '@/redux/hooks';
 import { selectItemCart } from '@/redux/features/cart';
 import { getQuantityCart } from '@/lib/cart';
 

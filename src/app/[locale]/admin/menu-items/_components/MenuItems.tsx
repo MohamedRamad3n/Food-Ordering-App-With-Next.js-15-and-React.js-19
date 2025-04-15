@@ -2,7 +2,6 @@ import Link from "@/components/link";
 import { Pages, Routes } from "@/constants/enums";
 import { getCurrentLocale } from "@/lib/getCurrentLocale";
 import getTrans from "@/lib/transilation";
-import { ProductWithRelations } from "@/types/product";
 import { Product } from "@prisma/client";
 import Image from "next/image";
 
