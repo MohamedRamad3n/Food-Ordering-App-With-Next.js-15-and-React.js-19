@@ -26,7 +26,7 @@ export default function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  params?: { locale: string };
 }>) {
   const locale = params?.locale || Languages.ENGLISH;
   const isRTL = locale === Languages.ARABIC;
