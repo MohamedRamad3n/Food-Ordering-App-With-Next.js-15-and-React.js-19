@@ -6,6 +6,8 @@ import { getBestSellers } from "@/server/db/products";
 
 const BestSellers = async () => {
   const bestSellers = await getBestSellers(3);
+  console.log(bestSellers);
+  
   const locale = await getCurrentLocale();
   const { home } = await getTrans(locale);
   const { bestSeller } = home;

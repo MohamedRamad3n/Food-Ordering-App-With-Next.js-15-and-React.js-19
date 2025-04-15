@@ -1,16 +1,15 @@
 "use client";
 
 import FormFields from "@/components/form-fields/form-fields";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Pages, Routes } from "@/constants/enums";
 import useFormFields from "@/hooks/useFormFields";
 import { IFormField } from "@/types/app";
 import { Translations } from "@/types/translations";
-import { Category, Extra, Size } from "@prisma/client";
 import { CameraIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
-import { SelectCategory } from "./SelectCategory";
-import { Button } from "@/components/ui/button";
+import { useActionState, useEffect, useState } from "react";
+import { Category, Extra, Size } from "@prisma/client";
 import {
   Accordion,
   AccordionContent,
@@ -18,61 +17,132 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import ItemOptions, { ItemOptionsKeys } from "./ItemOptions";
+import Link from "@/components/link";
+import { useParams } from "next/navigation";
+import { addProduct, deleteProduct, updateProduct } from "../_actions/product";
+import Loader from "@/components/ui/loader";
+import { toast } from "@/hooks/use-toast";
 import { ProductWithRelations } from "@/types/product";
+import { ValidationErrors } from "@/app/validations/auth";
+import { SelectCategory } from "./SelectCategory";
+
 function Form({
   translations,
   categories,
-  product
+  product,
 }: {
   translations: Translations;
   categories: Category[];
-  product:ProductWithRelations[];
+  product?: ProductWithRelations;
 }) {
-  const [selectedImage, setSelectedImage] = useState("");
-  const [categoryId, setCategoryId] = useState(categories[0].id);
+  const [selectedImage, setSelectedImage] = useState(
+    product ? product.image : ""
+  );
+  const [categoryId, setCategoryId] = useState(
+    product ? product.categoryId : categories[0].id
+  );
   const [sizes, setSizes] = useState<Partial<Size>[]>(
-    product && product.length > 0 ? product[0].sizes : []
+    product ? product.sizes : []
   );
   const [extras, setExtras] = useState<Partial<Extra>[]>(
-      product && product.length > 0 ? product[0].extras : []
-    );
+    product ? product.extras : []
+  );
   const { getFormFields } = useFormFields({
     slug: `${Routes.ADMIN}/${Pages.MENU_ITEMS}`,
     translations,
   });
+
+  const formData = new FormData();
+
+  Object.entries(product ?? {}).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && key !== "image") {
+      formData.append(key, value.toString());
+    }
+  });
+
+  const initialState: {
+    message?: string;
+    error?: ValidationErrors;
+    status?: number | null;
+    formData?: FormData | null;
+  } = {
+    message: "",
+    error: {},
+    status: null,
+    formData: null,
+  };
+
+  const [state, action, pending] = useActionState(
+    product
+      ? updateProduct.bind(null, {
+          productId: product.id,
+          options: { sizes, extras },
+        })
+      : addProduct.bind(null, { categoryId, options: { sizes, extras } }),
+    initialState
+  );
+
+  useEffect(() => {
+    if (state.message && state.status && !pending) {
+      toast({
+        title: state.message,
+        className:
+          state.status === 201 || state.status === 200
+            ? "text-green-400"
+            : "text-destructive",
+      });
+    }
+  }, [pending, state.message, state.status]);
   return (
-    <form className="flex flex-col md:flex-row gap-10">
+    <form action={action} className="flex flex-col md:flex-row gap-10">
       <div>
         <UploadImage
           selectedImage={selectedImage}
           setSelectedImage={setSelectedImage}
         />
+        {state?.error?.image && (
+          <p className="text-sm text-destructive text-center mt-4 font-medium">
+            {state.error?.image}
+          </p>
+        )}
       </div>
+
       <div className="flex-1">
         {getFormFields().map((field: IFormField) => {
+          const fieldValue =
+            state.formData?.get(field.name) ?? formData.get(field.name);
+
           return (
             <div key={field.name} className="mb-3">
-              <FormFields {...field} error={{}} />
+              <FormFields
+                {...field}
+                error={state?.error}
+                defaultValue={fieldValue as string}
+              />
             </div>
           );
         })}
         <SelectCategory
-          categories={categories}
           categoryId={categoryId}
+          categories={categories}
           setCategoryId={setCategoryId}
           translations={translations}
         />
-        <AddSize 
-        translations={translations}
-        sizes={sizes}
-        setSizes={setSizes}
+        <AddSize
+          translations={translations}
+          sizes={sizes}
+          setSizes={setSizes}
         />
-        <AddExtra
-        translations={translations}
-        extras={extras}
-        setExtras={setExtras}
+        <AddExtras
+          extras={extras}
+          setExtras={setExtras}
+          translations={translations}
         />
-        <FormActions translations={translations} />
+        <FormActions
+          translations={translations}
+          pending={pending}
+          product={product}
+        />
       </div>
     </form>
   );
@@ -106,10 +176,11 @@ const UploadImage = ({
         />
       )}
       <div
-        className={`${selectedImage
+        className={`${
+          selectedImage
             ? "group-hover:opacity-[1] opacity-0  transition-opacity duration-200"
             : ""
-          } absolute top-0 left-0 w-full h-full bg-gray-50/40`}
+        } absolute top-0 left-0 w-full h-full bg-gray-50/40`}
       >
         <input
           type="file"
@@ -130,20 +201,111 @@ const UploadImage = ({
   );
 };
 
-const FormActions = ({ translations }: { translations: Translations }) => {
+const FormActions = ({
+  translations,
+  pending,
+  product,
+}: {
+  translations: Translations;
+  pending: boolean;
+  product?: ProductWithRelations;
+}) => {
+  const { locale } = useParams();
+  const [state, setState] = useState<{
+    pending: boolean;
+    status: null | number;
+    message: string;
+  }>({
+    pending: false,
+    status: null,
+    message: "",
+  });
+  const handleDelete = async (id: string) => {
+    try {
+      setState((prev) => {
+        return { ...prev, pending: true };
+      });
+      const res = await deleteProduct(id);
+      setState((prev) => {
+        return { ...prev, status: res.status, message: res.message };
+      });
+      
+      // Show toast notification based on the response
+      if (res.status === 200) {
+        toast({
+          title: res.message,
+          className: "text-green-400",
+        });
+      } else {
+        toast({
+          title: res.message,
+          className: "text-destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: translations.messages.unexpectedError,
+        className: "text-destructive",
+      });
+    } finally {
+      setState((prev) => {
+        return { ...prev, pending: false };
+      });
+    }
+  };
+  useEffect(() => {
+    if (state.message && state.status && !pending) {
+      toast({
+        title: state.message,
+        className: state.status === 200 ? "text-green-400" : "text-destructive",
+      });
+    }
+  }, [pending, state.message, state.status]);
   return (
-    <Button className="w-full " type="submit">
-      {translations.create}
-    </Button>
+    <>
+      <div
+        className={`${product ? "grid grid-cols-2" : "flex flex-col"} gap-4`}
+      >
+        <Button type="submit" disabled={pending}>
+          {pending ? (
+            <Loader />
+          ) : product ? (
+            translations.save
+          ) : (
+            translations.create
+          )}
+        </Button>
+        {product && (
+          <Button
+            variant="outline"
+            disabled={state.pending}
+            onClick={() => handleDelete(product.id)}
+          >
+            {state.pending ? <Loader /> : translations.delete}
+          </Button>
+        )}
+      </div>
+
+      <Link
+        href={`/${locale}/${Routes.ADMIN}/${Pages.MENU_ITEMS}`}
+        className={`w-full mt-4 ${buttonVariants({ variant: "outline" })}`}
+      >
+        {translations.cancel}
+      </Link>
+    </>
   );
 };
 
-const AddSize = ({ sizes, setSizes, translations }:
-  {
-    sizes: Partial<Size>[];
-    setSizes: React.Dispatch<React.SetStateAction<Partial<Size>[]>>;
-    translations: Translations
-  }) => {
+const AddSize = ({
+  sizes,
+  setSizes,
+  translations,
+}: {
+  sizes: Partial<Size>[];
+  setSizes: React.Dispatch<React.SetStateAction<Partial<Size>[]>>;
+  translations: Translations;
+}) => {
   return (
     <Accordion
       type="single"
@@ -167,13 +329,15 @@ const AddSize = ({ sizes, setSizes, translations }:
   );
 };
 
-
-const AddExtra = ({ extras, setExtras, translations }:
-  {
-    extras: Partial<Extra>[];
-    setExtras: React.Dispatch<React.SetStateAction<Partial<Extra>[]>>;
-    translations: Translations
-  }) => {
+const AddExtras = ({
+  extras,
+  setExtras,
+  translations,
+}: {
+  extras: Partial<Extra>[];
+  setExtras: React.Dispatch<React.SetStateAction<Partial<Extra>[]>>;
+  translations: Translations;
+}) => {
   return (
     <Accordion
       type="single"
@@ -186,8 +350,8 @@ const AddExtra = ({ extras, setExtras, translations }:
         </AccordionTrigger>
         <AccordionContent>
           <ItemOptions
-            optionKey={ItemOptionsKeys.EXTRAS}
             state={extras}
+            optionKey={ItemOptionsKeys.EXTRAS}
             setState={setExtras}
             translations={translations}
           />

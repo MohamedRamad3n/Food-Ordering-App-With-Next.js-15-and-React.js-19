@@ -59,7 +59,7 @@ const AddToCardButton = ({ item }: { item: ProductWithRelations }) => {
   return (
     <div className="flex justify-center">
       <Dialog>
-        <DialogTrigger>
+        <DialogTrigger asChild>
           <Button
             type="button"
             size="lg"

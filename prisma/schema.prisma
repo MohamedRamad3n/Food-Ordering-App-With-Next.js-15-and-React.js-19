@@ -127,7 +127,7 @@ model Size {
   id        String      @id @default(cuid())
   name      ProductSize
   price     Float
-  product   Product     @relation(fields: [productId], references: [id])
+  product   Product     @relation(fields: [productId], references: [id],onDelete:Cascade)
   productId String
 }
 
@@ -135,7 +135,7 @@ model Extra {
   id        String    @id @default(cuid())
   name      ExtraName
   price     Float
-  product   Product   @relation(fields: [productId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id],onDelete:Cascade)
   productId String
 }
 

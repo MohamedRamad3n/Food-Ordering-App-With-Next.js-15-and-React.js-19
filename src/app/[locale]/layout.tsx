@@ -8,6 +8,7 @@ import { Locale } from "@/i18n.config";
 import { Directions, Languages } from "@/constants/enums";
 import { Toaster } from "@/components/ui/toaster";
 import NextAuthSessionProvider from "@/providers/NextAuthSessionProvider";
+import HydrationHandler from "@/components/HydrationHandler";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -39,18 +40,21 @@ export default async function RootLayout({
       dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
     >
       <body
+        suppressHydrationWarning
         className={
           locale === Languages.ARABIC ? cairo.className : roboto.className
         }
       >
-        <NextAuthSessionProvider>
-          <ReduxProvider>
-            <Header />
-            {children}
-            <Footer />
-            <Toaster />
-          </ReduxProvider>
-        </NextAuthSessionProvider>
+        <HydrationHandler>
+          <NextAuthSessionProvider>
+            <ReduxProvider>
+              <Header />
+              {children}
+              <Footer />
+              <Toaster />
+            </ReduxProvider>
+          </NextAuthSessionProvider>
+        </HydrationHandler>
       </body>
     </html>
   );

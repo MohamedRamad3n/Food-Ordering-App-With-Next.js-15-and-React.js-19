@@ -15,6 +15,7 @@ import { CameraIcon } from "lucide-react";
 import { updateProfile } from "./_actions/profile";
 import { toast } from "@/hooks/use-toast";
 import Checkbox from "../form-fields/checkBox";
+import { useSession } from "next-auth/react";
 const EditUserForm = ({
   translations,
   user,
@@ -22,6 +23,7 @@ const EditUserForm = ({
   translations: Translations;
   user: Session["user"];
 }) => {
+  const session = useSession();
   const formData = new FormData();
   Object.entries(user).forEach(([key, value]) => {
     if (value !== null && value !== undefined && key !== "image") {
@@ -103,7 +105,7 @@ const EditUserForm = ({
             </div>
           );
         })}
-        {user.role === UserRole.ADMIN && (
+        {session.data?.user.role === UserRole.ADMIN && (
           <div className="flex items-center gap-2 my-4">
             <Checkbox
               label="Admin"

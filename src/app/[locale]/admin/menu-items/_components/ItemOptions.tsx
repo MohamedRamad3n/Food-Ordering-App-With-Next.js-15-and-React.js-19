@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Translations } from "@/types/translations";
+import { Extra, ExtraName, ProductSize, Size } from "@prisma/client";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,12 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Languages } from "@/constants/enums";
-import { Translations } from "@/types/translations";
-import { ExtraName, ProductSize, Size, Extra } from "@prisma/client";
-import { Plus, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
-import React from "react";
+import { Languages } from "@/constants/enums";
+
 export enum ItemOptionsKeys {
   SIZES,
   EXTRAS,
@@ -27,14 +26,15 @@ const sizesNames = [
   ProductSize.MEDIUM,
   ProductSize.LARGE,
 ];
-const extraNames = [
+
+const extrasNames = [
   ExtraName.CHEESE,
   ExtraName.BACON,
   ExtraName.ONIONS,
   ExtraName.PEPPERONI,
   ExtraName.TOMATO,
-  ExtraName.GREEN_PEPPERS
-]
+];
+
 function handleOptions(
   setState:
     | React.Dispatch<React.SetStateAction<Partial<Size>[]>>
@@ -42,9 +42,9 @@ function handleOptions(
 ) {
   const addOption = () => {
     setState((prev: any) => {
-      return [...prev, { name: "", price: 0 }]
-    })
-  }
+      return [...prev, { name: "", price: 0 }];
+    });
+  };
   const onChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
@@ -56,7 +56,7 @@ function handleOptions(
       newSizes[index][fieldName] = newValue;
       return newSizes;
     });
-  }
+  };
   const removeOption = (indexToRemove: number) => {
     setState((prev: any) => {
       return prev.filter((_: any, index: number) => index !== indexToRemove);
@@ -64,37 +64,39 @@ function handleOptions(
   };
   return { addOption, onChange, removeOption };
 }
+
 function ItemOptions({
   state,
   setState,
   translations,
-  optionKey
+  optionKey,
 }: {
   state: Partial<Size>[] | Partial<Extra>[];
   setState:
-  | React.Dispatch<React.SetStateAction<Partial<Size>[]>>
-  | React.Dispatch<React.SetStateAction<Partial<Extra>[]>>;
+    | React.Dispatch<React.SetStateAction<Partial<Size>[]>>
+    | React.Dispatch<React.SetStateAction<Partial<Extra>[]>>;
   translations: Translations;
   optionKey: ItemOptionsKeys;
 }) {
   const { addOption, onChange, removeOption } = handleOptions(setState);
+
   const isThereAvailableOptions = () => {
     switch (optionKey) {
       case ItemOptionsKeys.SIZES:
         return sizesNames.length > state.length;
       case ItemOptionsKeys.EXTRAS:
-        return extraNames.length > state.length;
+        return extrasNames.length > state.length;
     }
   };
   return (
     <>
       {state.length > 0 && (
-        <ul> 
+        <ul>
           {state.map((item, index) => {
             return (
               <li key={index} className="flex gap-2 mb-2">
                 <div className="space-y-1 basis-1/2">
-                  <Label>Name</Label>
+                  <Label>name</Label>
                   <SelectName
                     item={item}
                     onChange={onChange}
@@ -125,7 +127,7 @@ function ItemOptions({
                   </Button>
                 </div>
               </li>
-            )
+            );
           })}
         </ul>
       )}
@@ -143,25 +145,26 @@ function ItemOptions({
         </Button>
       )}
     </>
-  )
+  );
 }
 
-export default ItemOptions
+export default ItemOptions;
 
 const SelectName = ({
   onChange,
   index,
   item,
   currentState,
-  optionKey
+  optionKey,
 }: {
-  index: number,
+  index: number;
   item: Partial<Size> | Partial<Extra>;
   currentState: Partial<Size>[] | Partial<Extra>[];
   optionKey: ItemOptionsKeys;
   onChange: (e: any, index: any, fieldName: any) => void;
 }) => {
   const { locale } = useParams();
+
   const getNames = () => {
     switch (optionKey) {
       case ItemOptionsKeys.SIZES:
@@ -170,14 +173,14 @@ const SelectName = ({
         );
         return filteredSizes;
       case ItemOptionsKeys.EXTRAS:
-        const filteredExtras = extraNames.filter(
+        const filteredExtras = extrasNames.filter(
           (extra) => !currentState.some((e) => e.name === extra)
         );
         return filteredExtras;
     }
   };
+
   const names = getNames();
-  console.log(names);
 
   return (
     <Select
@@ -187,8 +190,9 @@ const SelectName = ({
       defaultValue={item.name ? item.name : "select..."}
     >
       <SelectTrigger
-        className={` bg-white border-none mb-4 focus:ring-0 ${locale === Languages.ARABIC ? "flex-row-reverse" : "flex-row"
-          }`}
+        className={` bg-white border-none mb-4 focus:ring-0 ${
+          locale === Languages.ARABIC ? "flex-row-reverse" : "flex-row"
+        }`}
       >
         <SelectValue>{item.name ? item.name : "select..."}</SelectValue>
       </SelectTrigger>
@@ -207,4 +211,4 @@ const SelectName = ({
       </SelectContent>
     </Select>
   );
-}
+};

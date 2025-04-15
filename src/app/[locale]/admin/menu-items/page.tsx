@@ -4,10 +4,12 @@ import { Languages, Pages, Routes } from "@/constants/enums";
 import { Locale } from "@/i18n.config";
 import getTrans from "@/lib/transilation";
 import { authOptions } from "@/server/auth";
+import { getProducts } from "@/server/db/products";
 import { UserRole } from "@prisma/client";
 import { ArrowRightCircle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import MenuItems from "./_components/MenuItems";
 
 async function MenuItemsPage({
   params,
@@ -17,6 +19,7 @@ async function MenuItemsPage({
   const locale = (await params).locale;
   const translations = await getTrans(locale);
   const session = await getServerSession(authOptions);
+  const products = await getProducts();
   if (!session) {
     redirect(`/${locale}/${Routes.AUTH}/${Pages.LOGIN}`);
   }
@@ -28,7 +31,7 @@ async function MenuItemsPage({
     <main>
       <section className="section-gap">
         <div className="container">
-        <Link
+          <Link
             href={`/${locale}/${Routes.ADMIN}/${Pages.MENU_ITEMS}/${Pages.NEW}`}
             className={`${buttonVariants({
               variant: "outline",
@@ -36,11 +39,11 @@ async function MenuItemsPage({
           >
             {translations.admin["menu-items"].createNewMenuItem}
             <ArrowRightCircle
-              className={`!w-5 !h-5 ${
-                locale === Languages.ARABIC ? "rotate-180 " : ""
-              }`}
+              className={`!w-5 !h-5 ${locale === Languages.ARABIC ? "rotate-180 " : ""
+                }`}
             />
           </Link>
+          <MenuItems products={products} />
         </div>
       </section>
     </main>
