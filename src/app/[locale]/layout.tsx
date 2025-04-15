@@ -34,28 +34,15 @@ export default async function RootLayout({
 }>) {
   const locale = (await params).locale;
   return (
-    <html
-      suppressHydrationWarning
-      lang={locale}
-      dir={locale === Languages.ARABIC ? Directions.RTL : Directions.LTR}
-    >
-      <body
-        suppressHydrationWarning
-        className={
-          locale === Languages.ARABIC ? cairo.className : roboto.className
-        }
-      >
-        <HydrationHandler>
-          <NextAuthSessionProvider>
-            <ReduxProvider>
-              <Header />
-              {children}
-              <Footer />
-              <Toaster />
-            </ReduxProvider>
-          </NextAuthSessionProvider>
-        </HydrationHandler>
-      </body>
-    </html>
+    <HydrationHandler>
+      <NextAuthSessionProvider>
+        <ReduxProvider>
+          <Header />
+          {children}
+          <Footer />
+          <Toaster />
+        </ReduxProvider>
+      </NextAuthSessionProvider>
+    </HydrationHandler>
   );
 }
