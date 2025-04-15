@@ -3,6 +3,7 @@ import { Cairo, Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Languages, Directions } from "@/constants/enums";
+import { i18n } from "@/i18n.config";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -23,12 +24,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  params,
 }: Readonly<{
   children: React.ReactNode;
-  params?: { locale: string };
 }>) {
-  const locale = params?.locale || Languages.ENGLISH;
+  // Use the default locale from i18n config
+  const locale = i18n.defaultLocale;
   const isRTL = locale === Languages.ARABIC;
   
   return (
