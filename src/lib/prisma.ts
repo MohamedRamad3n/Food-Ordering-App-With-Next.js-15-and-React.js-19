@@ -14,27 +14,22 @@ const globalForPrisma = globalThis as unknown as {
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
-async function createPrismaClient() {
-  let retries = 0;
-  
-  while (retries < MAX_RETRIES) {
-    try {
-      const client = new PrismaClient();
-      // Test the connection
-      await client.$connect();
-      return client;
-    } catch (error) {
-      retries++;
-      if (retries === MAX_RETRIES) {
-        console.error("Failed to connect to database after", MAX_RETRIES, "attempts");
-        throw error;
-      }
-      console.warn(`Database connection attempt ${retries} failed, retrying in ${RETRY_DELAY}ms...`);
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-    }
-  }
+// Create a synchronous initialization function that returns a PrismaClient
+function createPrismaClientSync(): PrismaClient {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === Environments.DEV
+      ? ["query", "error", "warn"]
+      : ["error"],
+  });
 }
 
-export const db = globalForPrisma.prisma ?? await createPrismaClient();
+// Initialize the client synchronously
+const db = globalForPrisma.prisma ?? createPrismaClientSync();
 
-if (process.env.NODE_ENV !== Environments.PROD) globalForPrisma.prisma = db;
+// Store the client in the global object in development
+if (process.env.NODE_ENV !== Environments.PROD) {
+  globalForPrisma.prisma = db;
+}
+
+// Export the client
+export { db };
