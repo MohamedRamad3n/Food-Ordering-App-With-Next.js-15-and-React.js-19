@@ -11,9 +11,6 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
-
 // Create a synchronous initialization function that returns a PrismaClient
 function createPrismaClientSync(): PrismaClient {
   return new PrismaClient({
