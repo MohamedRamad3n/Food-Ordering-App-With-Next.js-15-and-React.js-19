@@ -7,10 +7,16 @@ import { getCategories } from "@/server/db/categories";
 import getTrans from "@/lib/transilation";
 
 export async function generateStaticParams() {
-  const products = await getProducts();
-
-  return products.map((product) => ({ productId: product.id }));
+  try {
+    const products = await getProducts();
+    return products.map((product) => ({ productId: product.id }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    // Return an empty array to allow the build to continue
+    return [];
+  }
 }
+
 async function EditProductPage({
   params,
 }: {
