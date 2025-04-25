@@ -30,6 +30,8 @@ export default function RootLayout({
   // Use the default locale from i18n config
   const locale = i18n.defaultLocale;
   const isRTL = locale === Languages.ARABIC;
+  console.log(Directions);
+  
   
   return (
     <html 
